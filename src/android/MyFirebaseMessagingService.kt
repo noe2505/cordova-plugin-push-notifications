@@ -17,7 +17,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import org.json.JSONObject
 import java.util.concurrent.atomic.AtomicInteger
+
 
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
@@ -45,19 +47,12 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
       mainActivity = Class.forName(className)
 
       // Other
-      val ai = packageManager.getApplicationInfo(
-        applicationContext.packageName,
-        PackageManager.GET_META_DATA
-      )
+      val ai = packageManager.getApplicationInfo(applicationContext.packageName,PackageManager.GET_META_DATA)
 
       defaultNotificationChannelID = ai.metaData.getString(mainfestChannelKey, "444")
       val channel: NotificationChannel
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        channel = NotificationChannel(
-          defaultNotificationChannelID,
-          "PUSH NOTIFICATIONS",
-          NotificationManager.IMPORTANCE_HIGH
-        )
+        channel = NotificationChannel(defaultNotificationChannelID,"PUSH NOTIFICATIONS",NotificationManager.IMPORTANCE_HIGH)
         notificationManager!!.createNotificationChannel(channel)
       }
 
@@ -82,13 +77,19 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
     val title     =data["title"]
     val body      =data["body"]
     val payload   =data["payload"]
-    var channel_id=data["channel_id"]
-    //var channel_id = data["android"]["notification"]["channel_id"] //<--@TODO: make it compliant with official notification standard
+    var channel_id=data["android_channel_id"]
 
     var resultIntent = Intent(this, mainActivity)
     if (payload != null) {
       // For launch
       resultIntent.putExtra("pushNotification", payload)
+
+      //Notifications.execute("notified",data)
+
+      //val json_payload=JSONObject(payload);
+      //if (json_payload["silent"] != null ){
+        //@TODO: do not create visible device notification but fire event and handle data over to foreground app??
+      //}
     }
 
     if(channel_id==null){
